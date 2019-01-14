@@ -8,3 +8,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Added
 - `omnipytent.ext.extra.screen` module for interaction with [GNU Screen](https://www.gnu.org/software/screen/)
+- `omnipytent.ext.extra.testing` module for test choosing helpers.

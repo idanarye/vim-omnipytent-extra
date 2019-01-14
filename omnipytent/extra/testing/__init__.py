@@ -8,6 +8,8 @@ except ImportError:
 from abc import abstractproperty
 
 from omnipytent import task
+from omnipytent.task_maker import TaskMaker
+from omnipytent.tasks import OptionsTask, OptionsTaskMulti
 
 
 class TargetTest(ABC):
@@ -59,3 +61,22 @@ def find_line_above(vimbuf, line_number, pattern):
             return (line_number,) + m.groups()
         line_number -= 1
     return tuple([None] * (1 + pattern.groups))
+
+
+class TestPicker(TaskMaker):
+    _is_maker_ = True
+
+    def __init__(self, sources, multi=False):
+        self.sources = sources
+        self.TaskType = OptionsTaskMulti if multi else OptionsTask
+
+    def __call__(self, ctx):
+        @ctx.key
+        def key(test):
+            return test.shortname
+
+        for source in self.sources:
+            source_cls = source[0]
+            for path in source[1:]:
+                for test in source_cls.find_at(path):
+                    yield test
