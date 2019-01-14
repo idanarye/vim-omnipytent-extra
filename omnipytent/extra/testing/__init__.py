@@ -1,4 +1,11 @@
-from abc import ABC, abstractproperty, abstractclassmethod
+try:
+    from abc import ABC, abstractclassmethod
+except ImportError:
+    from abc import ABCMeta, abstractmethod
+    ABC = ABCMeta('ABC', (), {})
+    abstractclassmethod = abstractmethod
+
+from abc import abstractproperty
 
 from omnipytent import task
 
