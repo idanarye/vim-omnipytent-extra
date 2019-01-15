@@ -6,6 +6,7 @@ from . import TargetTest
 
 class JavaJUnitTest(TargetTest):
     TEST_PATTERN = re.compile(r'@Test\n\s*public void (\w+)\(')
+    TESTFILE_SUFFIX = '.java'
 
     def __init__(self, subproject, classname, test):
         self.subproject = subproject
@@ -38,10 +39,6 @@ class JavaJUnitTest(TargetTest):
                     test=match.group(1))
 
     @classmethod
-    def gen_cursor_predicate(cls):
-        pass
-
-    @classmethod
     def _find_subproject_dirs(cls, path):
         for dirpath, dirnames, filenames in os.walk(path):
             head, tail = os.path.split(dirpath)
@@ -59,5 +56,5 @@ class JavaJUnitTest(TargetTest):
             _, subproject = os.path.split(subproject_dir)
             for dirpath, dirnames, filenames in os.walk(os.path.join(subproject_dir, 'src', 'test')):
                 for filename in filenames:
-                    if filename.endswith('.java'):
+                    if filename.endswith(cls.TESTFILE_SUFFIX):
                         yield subproject, os.path.join(dirpath, filename)

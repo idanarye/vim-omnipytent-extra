@@ -22,9 +22,11 @@ class TargetTest(ABC):
     def find_at(cls, path):
         pass
 
-    @abstractclassmethod
+    @classmethod
     def gen_cursor_predicate(cls):
-        pass
+        def pred(test):
+            return False
+        return pred
 
     @classmethod
     def gen_choose_test_task(cls, paths, multi=False, task_name='choose_test', alias=[], cache_choice_value=False):
@@ -75,8 +77,16 @@ class TestPicker(TaskMaker):
         def key(test):
             return test.shortname
 
+        cursor_predicates = []
+
         for source in self.sources:
             source_cls = source[0]
+            cursor_predicate = source_cls.gen_cursor_predicate()
+            if cursor_predicate:
+                cursor_predicates.append(cursor_predicate)
             for path in source[1:]:
                 for test in source_cls.find_at(path):
                     yield test
+
+        if cursor_predicates:
+            ctx.score(lambda test: any(p(test) for p in cursor_predicates))
