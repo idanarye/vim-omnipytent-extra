@@ -8,8 +8,7 @@ except ImportError:
 from abc import abstractproperty
 
 from omnipytent import task
-from omnipytent.task_maker import TaskMaker
-from omnipytent.tasks import OptionsTask, OptionsTaskMulti
+from omnipytent.tasks import OptionsTask
 
 
 class TargetTest(ABC):
@@ -65,19 +64,16 @@ def find_line_above(vimbuf, line_number, pattern):
     return tuple([None] * (1 + pattern.groups))
 
 
-class TestPicker(TaskMaker):
-    _is_maker_ = True
+class TestPicker(OptionsTask):
+    _CONCRETE_ = False
 
-    def __init__(self, sources, multi=False):
-        self.sources = sources
-        self.TaskType = OptionsTaskMulti if multi else OptionsTask
-
-    def __call__(self, ctx):
-        @ctx.key
+    def _func_(self):
+        @self.key
         def key(test):
             return test.shortname
 
         cursor_predicates = []
+        all_tests = []
 
         for source in self.sources:
             source_cls = source[0]
@@ -87,6 +83,11 @@ class TestPicker(TaskMaker):
             for path in source[1:]:
                 for test in source_cls.find_at(path):
                     yield test
+                    all_tests.append(test)
 
+        # print('cursor predicates', cursor_predicates)
+        # for i, test in enumerate(all_tests, 1):
+            # print(i, test, [p(test) for p in cursor_predicates])
+        # raise Exception
         if cursor_predicates:
-            ctx.score(lambda test: any(p(test) for p in cursor_predicates))
+            self.score(lambda test: any(p(test) for p in cursor_predicates))

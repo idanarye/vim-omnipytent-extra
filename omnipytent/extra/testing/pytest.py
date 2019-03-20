@@ -10,6 +10,7 @@ class PytestTest(TargetTest):
     COLLECT_ONLY_PATTERN = re.compile(r'''^\s*<(Package|Module|Function) ('.*'|".*")>$''', re.MULTILINE)
     TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
+    ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*), inifile:.*$', re.MULTILINE)
 
     def __init__(self, filename, function):
         self.filename = filename
@@ -30,7 +31,9 @@ class PytestTest(TargetTest):
         package = None
         filename = None
         command_parts = [cls.BASE_COMMAND, '--collect-only', path]
-        for m in cls.COLLECT_ONLY_PATTERN.finditer(check_output(command_parts).decode('utf-8')):
+        pytest_collect_output = check_output(command_parts).decode('utf-8')
+        rootdir = cls.ROOT_DIR_PATTERN.search(pytest_collect_output).group(1)
+        for m in cls.COLLECT_ONLY_PATTERN.finditer(pytest_collect_output):
             kind, name = m.groups()
             name = name[1:-1]
             if kind == 'Package':
@@ -40,7 +43,7 @@ class PytestTest(TargetTest):
                 if package:
                     filename = os.path.join(package, name)
                 else:
-                    filename = os.path.join(path, name)
+                    filename = os.path.join(rootdir, name)
             else:
                 assert kind == 'Function'
                 yield cls(filename=os.path.abspath(filename), function=name)
