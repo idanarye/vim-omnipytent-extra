@@ -5,7 +5,7 @@ from . import TargetTest
 
 
 class JavaJUnitTest(TargetTest):
-    TEST_PATTERN = re.compile(r'@Test\n\s*public void (\w+)\(')
+    TEST_PATTERN = re.compile(r'@Test(?:\(.*\))?\n\s*public void (\w+)\(')
     TESTFILE_SUFFIX = '.java'
 
     def __init__(self, subproject, classname, test):
