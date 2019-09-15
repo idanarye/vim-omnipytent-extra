@@ -33,7 +33,16 @@ class Screen(ShellCommandExecuter):
         return check_output(['screen', '-S', self.name, '-X', command] + list(args))
 
     def send_raw(self, text):
-        self._screen_command('stuff', '%s%s\r' % (self.LINE_RESET, text))
+        def chunkify_text(text, part_length):
+            i = 0
+            while i < len(text):
+                yield text[i:i + part_length]
+                i += part_length
+        texts = list(chunkify_text(text, 700))
+        texts[0] = self.LINE_RESET + texts[0]
+        texts[-1] = texts[-1] + '\r'
+        for text in texts:
+            self._screen_command('stuff', text)
 
     def clear_terminal(self):
         self._screen_command('stuff', self.CLEAR_TERMINAL)
