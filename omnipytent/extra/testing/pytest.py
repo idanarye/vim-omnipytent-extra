@@ -62,7 +62,7 @@ class PytestTest(TargetTest):
         if 4 == len(selected_test_indentation):
             _, test_class_name = find_line_above(curbuf, test_method_line, cls.CLASS_LINE_PATTERN)
             if not test_class_name:
-                raise Exception('Unable to find class name for %s ' % selected_test)
+                return None  # probably a method that looks like a test but isn't actually one...
             else:
                 # selected_test = '%s and %s' % (test_class_name, selected_test)
                 selected_test = class_and_method_format.format(cls=test_class_name, mtd=selected_test)
