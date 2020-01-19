@@ -7,10 +7,10 @@ from . import TargetTest, find_line_above
 
 class PytestTest(TargetTest):
     BASE_COMMAND = 'py.test'
-    COLLECT_ONLY_PATTERN = re.compile(r'''^\s*<(Package|Module|Function) ('.*'|".*")>$''', re.MULTILINE)
+    COLLECT_ONLY_PATTERN = re.compile(r'''^\s*<(Package|Module|Function) (.*)>$''', re.MULTILINE)
     TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
-    ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*), inifile:.*$', re.MULTILINE)
+    ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*)(?:, inifile:.*)?$', re.MULTILINE)
 
     def __init__(self, filename, function):
         self.filename = filename
@@ -35,7 +35,8 @@ class PytestTest(TargetTest):
         rootdir = cls.ROOT_DIR_PATTERN.search(pytest_collect_output).group(1)
         for m in cls.COLLECT_ONLY_PATTERN.finditer(pytest_collect_output):
             kind, name = m.groups()
-            name = name[1:-1]
+            if name and name[0] == name[-1] and name[0] in ('"', "'"):
+                name = name[1:-1]
             if kind == 'Package':
                 package = name
                 filename = None
