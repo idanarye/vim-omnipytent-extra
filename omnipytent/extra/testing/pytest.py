@@ -10,7 +10,7 @@ class PytestTest(TargetTest):
     COLLECT_ONLY_PATTERN = re.compile(r'''^\s*<(Package|Module|Function) (.*)>$''', re.MULTILINE)
     TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
-    ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*)(?:, inifile:.*)?$', re.MULTILINE)
+    ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*?)(?:, inifile:.*)?$', re.MULTILINE)
 
     def __init__(self, filename, function):
         self.filename = filename
