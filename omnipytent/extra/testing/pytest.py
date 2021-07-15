@@ -1,6 +1,7 @@
 import vim
 import re
 import os
+import os.path
 from subprocess import check_output
 
 from . import TargetTest, find_line_above
@@ -8,7 +9,7 @@ from . import TargetTest, find_line_above
 class PytestTest(TargetTest):
     BASE_COMMAND = 'py.test'
     COLLECT_ONLY_PATTERN = re.compile(r'''^\s*<(Package|Module|Function) (.*)>$''', re.MULTILINE)
-    TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')
+    TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')  # ) Without this indentations get messed up
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
     ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*?)(?:, inifile:.*)?$', re.MULTILINE)
 
@@ -39,6 +40,8 @@ class PytestTest(TargetTest):
                 name = name[1:-1]
             if kind == 'Package':
                 package = name
+                if not os.path.isabs(package):
+                    package = os.path.join(rootdir, path, package)
                 filename = None
             elif kind == 'Module':
                 if package:
