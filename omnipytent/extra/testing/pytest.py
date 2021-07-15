@@ -8,7 +8,7 @@ from . import TargetTest, find_line_above
 
 class PytestTest(TargetTest):
     BASE_COMMAND = 'py.test'
-    COLLECT_ONLY_PATTERN = re.compile(r'''^\s*<(Package|Module|Function) (.*)>$''', re.MULTILINE)
+    COLLECT_ONLY_PATTERN = re.compile(r'''^(\s*)<(Package|Module|Function) (.*)>$''', re.MULTILINE)
     TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')  # ) Without this indentations get messed up
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
     ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*?)(?:, inifile:.*)?$', re.MULTILINE)
@@ -35,7 +35,8 @@ class PytestTest(TargetTest):
         pytest_collect_output = check_output(command_parts).decode('utf-8')
         rootdir = cls.ROOT_DIR_PATTERN.search(pytest_collect_output).group(1)
         for m in cls.COLLECT_ONLY_PATTERN.finditer(pytest_collect_output):
-            kind, name = m.groups()
+            indent, kind, name = m.groups()
+            indent = indent.strip('\n')
             if name and name[0] == name[-1] and name[0] in ('"', "'"):
                 name = name[1:-1]
             if kind == 'Package':
@@ -44,6 +45,8 @@ class PytestTest(TargetTest):
                     package = os.path.join(rootdir, path, package)
                 filename = None
             elif kind == 'Module':
+                if not indent:
+                    package = None
                 if package:
                     filename = os.path.join(package, name)
                 else:
