@@ -12,6 +12,7 @@ class PytestTest(TargetTest):
     TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')  # ) Without this indentations get messed up
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
     ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*?)(?:, inifile:.*)?$', re.MULTILINE)
+    CLASS_AND_METHOD_FORMAT = '{cls} and {mtd}'
 
     def __init__(self, filename, function):
         self.filename = filename
@@ -72,7 +73,7 @@ class PytestTest(TargetTest):
                 return None  # probably a method that looks like a test but isn't actually one...
             else:
                 # selected_test = '%s and %s' % (test_class_name, selected_test)
-                selected_test = class_and_method_format.format(cls=test_class_name, mtd=selected_test)
+                selected_test = cls.CLASS_AND_METHOD_FORMAT.format(cls=test_class_name, mtd=selected_test)
 
         def pred(test):
             if os.path.normpath(test.filename) != normpath:
