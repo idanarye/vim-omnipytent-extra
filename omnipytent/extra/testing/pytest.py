@@ -9,7 +9,7 @@ from . import TargetTest, find_line_above
 class PytestTest(TargetTest):
     BASE_COMMAND = 'py.test'
     COLLECT_ONLY_PATTERN = re.compile(r'''^(\s*)<(Package|Module|Function) (.*)>$''', re.MULTILINE)
-    TEST_LINE_PATTERN = re.compile(r'^(\s*)def (test\w*).*[:,(]\s*$')  # ) Without this indentations get messed up
+    TEST_LINE_PATTERN = re.compile(r'^(\s*)(?:def|class) ([Tt]est\w*).*[:,(]\s*$')  # ) Without this indentations get messed up
     CLASS_LINE_PATTERN = re.compile(r'^class (Test\w*).*:')
     ROOT_DIR_PATTERN = re.compile(r'^rootdir: (.*?)(?:, inifile:.*)?$', re.MULTILINE)
     CLASS_AND_METHOD_FORMAT = '{cls} and {mtd}'
