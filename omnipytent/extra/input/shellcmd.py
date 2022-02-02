@@ -44,14 +44,18 @@ class ShellCmd:
     def __completions_from(self, source, base):
         if callable(source):
             result = source(base)
-            if result:
-                for item in result:
+        elif hasattr(source, '__iter__'):
+            result = source
+        else:
+            return
+        if result:
+            for item in result:
+                if isinstance(item, dict):
+                    if item['word'].startswith(base):
+                        yield item
+                else:
                     if item.startswith(base):
                         yield item
-        elif hasattr(source, '__iter__'):
-            for item in source:
-                if item.startswith(base):
-                    yield item
 
     def complete(self, base):
         row, col = vim.current.window.cursor
