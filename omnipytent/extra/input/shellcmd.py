@@ -14,32 +14,33 @@ def _findstart_with_shlex(prefix):
     return len(prefix) + 1
 
 
-class ShellCmd:
-    def __init__(self, filetype='sh'):
-        self.filetype = filetype
-        self.completions = {}
-        self.positional = []
-
-    def run(self, text):
-        return INPUT_BUFFER(
-            text,
-            filetype=self.filetype,
+class ShellCmd(INPUT_BUFFER):
+    def __init__(
+        self,
+        text=None,
+        filetype='sh',
+    ):
+        super(ShellCmd, self).__init__(
+            text=text,
+            filetype=filetype,
             complete=self.complete,
             complete_findstart=_findstart_with_shlex,
         )
+        self._completions = {}
+        self._positional = []
 
     def add_flag(self, *flags):
         for flag in flags:
-            self.completions[flag] = None
+            self._completions[flag] = None
 
         def register_function(source):
             for flag in flags:
-                self.completions[flag] = source
+                self._completions[flag] = source
 
         return register_function
 
     def add_positional(self, source):
-        self.positional.append(source)
+        self._positional.append(source)
 
     def __completions_from(self, source, base):
         if callable(source):
@@ -67,16 +68,19 @@ class ShellCmd:
             flag = parts[-1]
             if flag.endswith('='):
                 flag = flag[:-1]
-            source = self.completions.get(flag)
+            source = self._completions.get(flag)
             if source is not None:
                 for item in self.__completions_from(source, base):
                     yield item
                 return
 
-        for source in self.positional:
+        for source in self._positional:
             for item in self.__completions_from(source, base):
                 yield item
 
-        for flag in self.completions.keys():
+        for flag in self._completions.keys():
             if flag.startswith(base):
                 yield flag
+
+    def invoke_registered_command(self, command_name):
+        pass
