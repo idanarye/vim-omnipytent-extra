@@ -40,7 +40,7 @@ def execute_with_reloading(pattern, code):
                         parent_module = None  # so we won't reload it again
 
     ip = get_ipython()
-    ip.ex(code)
+    ip.run_cell(code)
 
 
 def patch_existing_instances(*classes):
